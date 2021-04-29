@@ -46,7 +46,7 @@ const DApp = {
 
   // Associa ao endereço do seu contrato
   initContract: async function () {
-    DApp.contracts.Rifa = new DApp.web3.eth.Contract(abi, contractAddress);
+    DApp.contracts.Vegas = new DApp.web3.eth.Contract(abi, contractAddress);
     return DApp.render();
   },
 
@@ -56,72 +56,71 @@ const DApp = {
   },
 };
 
-// *** MÉTODOS (de consulta - view) DO CONTRATO ** //
-function verRifas() {
-  return DApp.contracts.Rifa.methods.verRifas().call({ from: DApp.account });
+function verPrecoFicha() {
+  return DApp.contracts.Vegas.methods.verFichas().call({ from: DApp.account });
 }
 
-function verGanhador() {
-  return DApp.contracts.Rifa.methods.verGanhador().call();
+function ganhou() {
+  return DApp.contracts.Vegas.methods.ganhouFichas().call();
 }
 
 function verPreco() {
-  return DApp.contracts.Rifa.methods.verPrecoDaRifa().call();
+  return DApp.contracts.Vegas.methods.verPrecoFicha().call();
 }
 
-function verPremio() {
-  return DApp.contracts.Rifa.methods.verPremio().call();
+function verGanhos() {
+  return DApp.contracts.Vegas.methods.verGanhos().call();
 }
 
-function verTotalDeRifas() {
-  return DApp.contracts.Rifa.methods.verTotalDeRifas().call();
+function verMinhasFichas() {
+  return DApp.contracts.Vegas.methods.verMinhasFichas().call();
 }
 
 function ehDono() {
-  return DApp.contracts.Rifa.methods.isOwner().call({ from: DApp.account });
+  return DApp.contracts.Vegas.methods.isOwner().call({ from: DApp.account });
 }
 
 // *** MÉTODOS (de escrita) DO CONTRATO ** //
-function comprarFixa() {
+function comprarFicha() {
   let quant = document.getElementById("quantidade").value;
   let preco = 100000000000000000 * quant;
-  return DApp.contracts.Rifa.methods.comprarRifa(quant).send({ from: DApp.account, value: preco }).then(atualizaInterface);
+  return DApp.contracts.Vegas.methods.comprarFicha(quant).send({ from: DApp.account, value: preco }).then(atualizaInterface);
 }
 
 function sortear() {
-  return DApp.contracts.Rifa.methods.sortearRifa().send({ from: DApp.account }).then(atualizaInterface);;
+  return DApp.contracts.Vegas.methods.sortearFicha().send({ from: DApp.account }).then(atualizaInterface);;
 }
 
 // *** ATUALIZAÇÃO DO HTML *** //
 
 function inicializaInterface() {
     document.getElementById("btnSortear").onclick = sortear;
-    document.getElementById("btnComprar").onclick = comprarRifa;
+    document.getElementById("btnComprar").onclick = comprarFicha;
     atualizaInterface();
-    DApp.contracts.Rifa.getPastEvents("RifaComprada", { fromBlock: 0, toBlock: "latest" }).then((result) => registraEventos(result));  
-    DApp.contracts.Rifa.events.RifaComprada((error, event) => registraEventos([event]));  
+    DApp.contracts.Vegas.getPastEvents("FichaComprada", { fromBlock: 0, toBlock: "latest" }).then((result) => registraEventos(result));  
+    DApp.contracts.Vegas.events.FichaComprada((error, event) => registraEventos([event]));  
 }
 
 function atualizaInterface() {
-  verRifas().then((result) => {
-    document.getElementById("total-rifas").innerHTML = result;
+  verGanhos().then((result) => {
+    document.getElementById("total-fichas").innerHTML = result;
   });
 
-  verTotalDeRifas().then((result) => {
+  verMinhasFichas().then((result) => {
     document.getElementById("total-geral").innerHTML = result;
   });
 
-  verPremio().then((result) => {
+  verPrecoFicha().then((result) => {
     document.getElementById("premio").innerHTML =
       result / 1000000000000000000 + " ETH";
   });
 
   verPreco().then((result) => {
     document.getElementById("preco").innerHTML =
-      "Preço da Rifa: " + result / 1000000000000000000 + " ETH";
+      "Preço da Ficha: " + result / 1000000000000000000 + " ETH";
   });
 
-  verGanhador().then((result) => {
+  verGanhos().then((result) => {
     document.getElementById("ganhador").innerHTML = result;
   });
 
